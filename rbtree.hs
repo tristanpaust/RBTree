@@ -31,9 +31,42 @@ balance (N B L v1 (N R L v2 (N R L v3 L))) = (N R (N B L v1 L) v2 (N B L v3 L))
 balance (N B (N R L v2 (N R L v3 L)) v1 L) = (N R (N B L v2 L) v3 (N B L v1 L))
 balance a = a
 
+
+{--ins x (N c l y r) =
+	if x == y then do
+		print (y)		
+		return (N c l x r)
+	else if x < y then do
+		print (y)
+		if (N c L y L) then do
+			return (N c (N R L x L) y L)
+		else
+			ins x l
+	else if x > y then
+
+		ins x r
+	else
+		return (N c (N R L x L) y r)
+--}
+ins :: Ord a => a -> RBTree a -> RBTree a
+ins x (N c l y r)
+  | x == y = N c l x r
+  | x < y = case l of 
+    (N c2 L y2 r2) -> (N c (N c2 (N B L x L) y2 r2) y r) -- There is a leaf at the left so insert the new node here
+    (N c2 l2 y2 L) -> (N c (N c2 l2 y2 (N B L x L)) y r) -- There is leaf at the right so insert the new node here
+    otherwise -> N c (ins x l) y r -- No Leaves found, hence the tree is still bigger and we need to traverse further down
+  | x > y = case r of
+    (N c2 L y2 r2) -> (N c l y (N c2 (N B L x L) y2 L))
+    (N c2 l2 y2 L) -> (N c l y (N c2 l2 y2 (N B L x L)))
+    otherwise -> N c l y (ins x r)
+
+
+
+
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
 test3 = N R (N R L 12 L) 27 (N R (N R L 28 L) 29 (N R L 32 L))
+test4 = N R (N R L 12 L) 27 (N R (N R (N B L 37 L) 28 L) 29 (N R L 32 L))
 
 {-- 
 All trees should have the form:
