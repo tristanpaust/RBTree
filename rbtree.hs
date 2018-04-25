@@ -31,23 +31,6 @@ balance (N B L v1 (N R L v2 (N R L v3 L))) = (N R (N B L v1 L) v2 (N B L v3 L))
 balance (N B (N R L v2 (N R L v3 L)) v1 L) = (N R (N B L v2 L) v3 (N B L v1 L))
 balance a = a
 
-
-{--ins x (N c l y r) =
-	if x == y then do
-		print (y)		
-		return (N c l x r)
-	else if x < y then do
-		print (y)
-		if (N c L y L) then do
-			return (N c (N R L x L) y L)
-		else
-			ins x l
-	else if x > y then
-
-		ins x r
-	else
-		return (N c (N R L x L) y r)
---}
 ins :: Ord a => a -> RBTree a -> RBTree a
 ins x (N c l y r)
   | x == y = N c l x r
@@ -60,7 +43,8 @@ ins x (N c l y r)
     (N c2 l2 y2 L) -> (N c l y (N c2 l2 y2 (N B L x L)))
     otherwise -> N c l y (ins x r)
 
-
+insert :: Ord a => a -> RBTree a -> RBTree a
+insert x (N c l y r) = blackenRoot (ins x (N c l y r))
 
 
 test = N R L 27 L
