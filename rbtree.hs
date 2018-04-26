@@ -64,6 +64,14 @@ colorValue c =
 	else
 		0
 
+type Path a = [(Color, a)]
+
+paths :: RBTree a -> [Path a]
+paths L = [[]]
+paths (N c l y r) = do
+    trees   <- [l,r]
+    allPaths <- paths trees
+    return ((c,y):allPaths)
 
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
