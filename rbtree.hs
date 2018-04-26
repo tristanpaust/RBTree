@@ -46,6 +46,13 @@ ins x (N c l y r)
 insert :: Ord a => a -> RBTree a -> RBTree a
 insert x (N c l y r) = blackenRoot (ins x (N c l y r))
 
+fromList :: Ord a => [a] -> RBTree a
+fromList [] = L
+fromList (x:xs) = ins x (fromList xs)
+	
+toList :: RBTree a -> [a]
+toList L = []
+toList (N c l y r) = y:(toList l)++(toList r)
 
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
