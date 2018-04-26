@@ -54,6 +54,17 @@ toList :: RBTree a -> [a]
 toList L = []
 toList (N c l y r) = y:(toList l)++(toList r)
 
+rootColor :: RBTree a -> Color
+rootColor (N c l y r) = c
+
+colorValue :: Color -> Int
+colorValue c = 
+	if c == B then
+		1
+	else
+		0
+
+
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
 test3 = N R (N R L 12 L) 27 (N R (N R L 28 L) 29 (N R L 32 L))
