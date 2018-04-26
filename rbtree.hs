@@ -68,6 +68,7 @@ type Path a = [(Color, a)]
 
 paths :: RBTree a -> [Path a]
 paths L = [[]]
+paths (N c L y L) = [[(c,y)]]
 paths (N c l y r) = do
     trees   <- [l,r]
     allPaths <- paths trees
