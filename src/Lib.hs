@@ -95,7 +95,7 @@ instance (Ord i) => Ord (Indexed i a) where
 type RBMap i a = RBTree (Indexed i (Maybe a))
 
 deleteAt :: Ord i => i -> RBMap i a -> RBMap i a
-deleteAt i L = (N R L (Indexed (i,Nothing)) L)
+deleteAt i L = L
 deleteAt i (N c l (Indexed (j, Just v)) r)
   | i == j = (N c l (Indexed (j,Nothing)) r)
   | i <  j = (N c (deleteAt i l) (Indexed (j, Just v)) r) 
