@@ -82,6 +82,34 @@ paths (N c l y r) = do
     allPaths <- paths trees
     return ((c,y):allPaths)
 
+data Indexed i a = Indexed (i,a)
+  deriving Show
+
+instance (Eq i) => Eq (Indexed i a) where
+  (Indexed (i1,a1)) == (Indexed (i2,a2)) = i1 == i2
+
+instance (Ord i) => Ord (Indexed i a) where
+  (Indexed (i1,a1)) > (Indexed (i2,a2)) = i1 > i2
+  (Indexed (i1,a1)) <= (Indexed (i2,a2)) = i1 <= i2
+
+type RBMap i a = RBTree (Indexed i (Maybe a))
+
+deleteAt :: Ord i => i -> RBMap i a -> RBMap i a
+deleteAt i L = (N R L (Indexed (i,Nothing)) L)
+deleteAt i (N c l (Indexed (j, Just v)) r)
+  | i == j = (N c l (Indexed (j,Nothing)) r)
+  | i <  j = (N c (deleteAt i l) (Indexed (j, Just v)) r) 
+  | i >  j = (N c l (Indexed (j, Just v)) (deleteAt i r))
+
+
+
+
+
+maptest = (N R L (Indexed (2, Just 12)) L)
+maptest2 = (N R L (Indexed (1,Nothing)) L)
+maptest3 = (N R (N B L (Indexed (1, Just 6)) L) (Indexed (2, Just 8)) (N B L (Indexed (3, Just 12)) L))
+maptest4 = N R (N R L (Indexed (1, Just 12)) L) (Indexed (2, Just 27)) (N R (N R (N B L (Indexed (3, Just 37)) L) (Indexed (4, Just 28)) L) (Indexed (5, Just 29)) (N R L (Indexed (6, Just 32)) L))
+
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
 test3 = N R (N R L 12 L) 27 (N R (N R L 28 L) 29 (N R L 32 L))

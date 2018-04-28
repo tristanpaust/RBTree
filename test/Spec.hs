@@ -17,7 +17,7 @@ main = do
 instance (Arbitrary a, Ord a) => Arbitrary (RBTree a) where
   arbitrary = do
     a <- arbitrary
-    return (fromList a)
+    return (fromList (LL.nub a))
 
 -- Helper function for inOrder
 checkOrder [] = True
@@ -49,12 +49,16 @@ getAllColors (N c l y r) = do
     return ((colorValue c):allPaths)
 
 -- Compare values in 1D summed color value list
+checkPathValues [] = True
 checkPathValues xs = and $ map (== head xs) (tail xs)
- 
+
+-- Remove the root from the lists of paths as it always is just [1]
+filterRoot xs = filter (\x -> length(x) >= 2) xs
+
  -- Check whether all paths have the same sum, that is, all black nodes have a value of 1 and red ones have a value of 0
 samePathValues :: RBTree Int -> Bool
 samePathValues L = True
-samePathValues t = checkPathValues (map sum . LL.transpose $ (getAllColors t))
+samePathValues t = checkPathValues (map sum (filterRoot (getAllColors t)))
 
 -- The same as the above, just with an extra insert
 inOrderInsert x = inOrder . insert x
@@ -65,7 +69,7 @@ samePathValuesInsert x = noRedChain . insert x
 -- Make sure that a list generated from a tree that was generated from a list is the same as an ordered list
 roundTripSort :: [Int] -> Bool
 roundTripSort [] = True
-roundTripSort (x:xs) = toList (fromList xs) == LL.sort xs
+roundTripSort (x:xs) = toList (fromList (LL.nub xs)) == LL.sort (LL.nub xs)
 
 -- Insert element and then try to find it
 findAfterInsert :: Int -> RBTree Int -> Bool
