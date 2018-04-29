@@ -43,10 +43,18 @@ noRedChain (N _ l x r) = (noRedChain l) && (noRedChain r)
 -- Get only the colors of every path
 getAllColors L = [[]]
 getAllColors (N c L y L) = [[colorValue c]]
+getAllColors (N c l y L) = do
+  left <- [l]
+  allLeft <- getAllColors left
+  return ((colorValue c):allLeft)
+getAllColors (N c L y r) = do 
+  right <- [r]
+  allRight <- getAllColors right
+  return ((colorValue c):(allRight))
 getAllColors (N c l y r) = do
     trees   <- [l,r]
     allPaths <- getAllColors trees
-    return ((colorValue c):allPaths)
+    return ((colorValue c):(allPaths))
 
 -- Compare values in 1D summed color value list
 checkPathValues [] = True
@@ -58,7 +66,9 @@ filterRoot xs = filter (\x -> length(x) >= 2) xs
  -- Check whether all paths have the same sum, that is, all black nodes have a value of 1 and red ones have a value of 0
 samePathValues :: RBTree Int -> Bool
 samePathValues L = True
-samePathValues t = checkPathValues (map sum (filterRoot (getAllColors t)))
+samePathValues t = checkPathValues (map sum ((getAllColors t)))
+
+
 
 -- The same as the above, just with an extra insert
 inOrderInsert x = inOrder . insert x
@@ -74,3 +84,15 @@ roundTripSort (x:xs) = toList (fromList (LL.nub xs)) == LL.sort (LL.nub xs)
 -- Insert element and then try to find it
 findAfterInsert :: Int -> RBTree Int -> Bool
 findAfterInsert x t =  find x (insert x t) == Just x
+
+
+{--
+findAfterInsertAt :: Int -> Int -> RBMap Int Int -> Bool
+findAfterInsertAt x i t = findAt i (insertAt i x t ) == Just x
+
+findAfterDeleteAt :: Int -> RBMap Int Int -> Bool
+findAfterDeleteAt i t = findAt i (deleteAt i t) == Nothing
+--}
+
+deleteAfterInsert :: Int -> Int -> RBMap Int Int -> Bool
+deleteAfterInsert i x t = toAssoc (deleteAt i (insertAt i x t)) == toAssoc (deleteAt i t)

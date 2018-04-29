@@ -36,14 +36,14 @@ balance (N B (N R L v2 (N R L v3 L)) v1 L) = (N R (N B L v2 L) v3 (N B L v1 L))
 balance a = a
 
 ins :: Ord a => a -> RBTree a -> RBTree a
-ins x L = (N R L x L)
+ins x L = (N B L x L)
 ins x (N c l y r)
   | x == y = N c l x r
   | x < y = case l of 
-    (N c2 L y2 L) -> if x < y2 then balance((N c (N B (N R L x L) y2 L) y r)) else balance((N c (N B L y2 (N R L x L)) y r))
+    (N c2 L y2 L) -> if x < y2 then balance((N B (N R (N R L x L) y2 L) y r)) else balance((N c (N R L y2 (N R L x L)) y r))
     otherwise -> N c (ins x l) y r -- No Leaves found, hence the tree is still bigger and we need to traverse further down
   | x > y = case r of
-    (N c2 L y2 L) -> if x < y2 then balance(N c l y (N B (N R L x L) y2 L)) else balance(N c l y (N B L y2 (N R L x L)))
+    (N c2 L y2 L) -> if x < y2 then balance(N c l y (N R (N R L x L) y2 L)) else balance(N c l y (N R L y2 (N R L x L)))
     otherwise -> N c l y (ins x r)
 
 insert :: Ord a => a -> RBTree a -> RBTree a
@@ -73,18 +73,23 @@ type Path a = [(Color, a)]
 paths :: RBTree a -> [Path a]
 paths L = [[]]
 paths (N c L y L) = [[(c,y)]]
+paths (N c l y L) = do
+  left <- [l]
+  allLeft <- paths left
+  return ((c,y):(allLeft))
+paths (N c L y r) = do
+  right <- [r]
+  allRight <- paths right
+  return ((c,y):(allRight))
 paths (N c l y r) = do
     trees   <- [l,r]
     allPaths <- paths trees
     return ((c,y):allPaths)
 
-{--
 paths2 L = [[]]
-paths (N c L x L)
-paths2 (N c l x r) 
-  | (N c L x L) = map (x:) (paths2 l ++ paths2 r)
-  | otherwise = paths2 l
---}
+paths2 (N c L x L) = [[(c,x)]]
+paths2 (N c l x r) = paths2 l <|> paths2 r
+
 
 data Indexed i a = Indexed (i,a)
   deriving Show
@@ -163,6 +168,38 @@ maptest = (N R L (Indexed (2, Just 12)) L)
 maptest2 = (N R L (Indexed (1,Nothing)) L)
 maptest3 = (N R (N B L (Indexed (1, Just 6)) L) (Indexed (2, Just 8)) (N B L (Indexed (3, Just 12)) L))
 maptest4 = N R (N R L (Indexed (1, Nothing)) L) (Indexed (2, Just 27)) (N R (N R (N B L (Indexed (3, Just 37)) L) (Indexed (4, Just 28)) L) (Indexed (5, Just 29)) (N R L (Indexed (6, Just 32)) L))
+
+{--
+getAllColors L = [[]]
+getAllColors (N c L y L) = [[colorValue c]]
+getAllColors (N c l y L) = do
+  left <- [l]
+  allLeft <- getAllColors left
+  return ((colorValue c):allLeft)
+getAllColors (N c L y r) = do 
+  right <- [r]
+  allRight <- getAllColors right
+  return ((colorValue c):(allRight))
+getAllColors (N c l y r) = do
+    trees   <- [l,r]
+    allPaths <- getAllColors trees
+    return ((colorValue c):(allPaths))
+
+checkPathValues [] = True
+checkPathValues xs = and $ map (== head xs) (tail xs)
+
+-- Remove the root from the lists of paths as it always is just [1]
+filterRoot xs = filter (\x -> length(x) >= 2) xs
+
+ -- Check whether all paths have the same sum, that is, all black nodes have a value of 1 and red ones have a value of 0
+samePathValues :: RBTree Int -> Bool
+samePathValues L = True
+samePathValues t = checkPathValues (map sum ((getAllColors t)))
+
+
+
+--N B (N B (N B L (-12) L) (-11) (N R L (-8) L)) 3 (N B L 9 (N R L 12 L))
+--}
 
 {--
 
