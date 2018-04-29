@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 import Test.QuickCheck
 import Test.Hspec
 import Control.Applicative
@@ -6,18 +7,30 @@ import Lib
 
 main :: IO ()
 main = do
-  quickCheck inOrder
-  quickCheck isBlackRoot
-  quickCheck noRedChain
-  quickCheck samePathValues
-  quickCheck roundTripSort
-  quickCheck findAfterInsert
+  --quickCheck inOrder
+  --quickCheck isBlackRoot
+  --quickCheck noRedChain
+  --quickCheck samePathValues
+  --quickCheck roundTripSort
+  --quickCheck findAfterInsert
+  quickCheck findAfterInsertAt
+  quickCheck findAfterDeleteAt
+  quickCheck deleteAfterInsert
 
 -- Generate random list and create trees from it
+instance (Arbitrary a, Arbitrary i, Ord a, Ord i) => Arbitrary (RBMap i a) where
+  arbitrary = do
+    a <- arbitrary
+    i <- arbitrary
+    return (fromAssoc ([Indexed(i,a)]))
+
+-- *** Uncomment this and remove the above in order to test regular trees without indexing *** --
+{-- 
 instance (Arbitrary a, Ord a) => Arbitrary (RBTree a) where
   arbitrary = do
     a <- arbitrary
     return (fromList (LL.nub a))
+--}
 
 -- Helper function for inOrder
 checkOrder [] = True
@@ -85,14 +98,11 @@ roundTripSort (x:xs) = toList (fromList (LL.nub xs)) == LL.sort (LL.nub xs)
 findAfterInsert :: Int -> RBTree Int -> Bool
 findAfterInsert x t =  find x (insert x t) == Just x
 
-
-{--
 findAfterInsertAt :: Int -> Int -> RBMap Int Int -> Bool
 findAfterInsertAt x i t = findAt i (insertAt i x t ) == Just x
 
 findAfterDeleteAt :: Int -> RBMap Int Int -> Bool
 findAfterDeleteAt i t = findAt i (deleteAt i t) == Nothing
---}
 
 deleteAfterInsert :: Int -> Int -> RBMap Int Int -> Bool
 deleteAfterInsert i x t = toAssoc (deleteAt i (insertAt i x t)) == toAssoc (deleteAt i t)
