@@ -110,12 +110,6 @@ deleteAt i (N c l (Indexed (j, Just v)) r)
   | i <  j = (N c (deleteAt i l) (Indexed (j, Just v)) r) 
   | i >  j = (N c l (Indexed (j, Just v)) (deleteAt i r))
 
-replaceValues :: RBMap i a -> RBTree a
-replaceValues (N c L (Indexed (j, Just v)) L) = (N c L v L)
-replaceValues (N c L (Indexed (j, Just v)) r) = (N c L v (replaceValues r))
-replaceValues (N c l (Indexed (j, Just v)) L) = (N c (replaceValues l) v L)
-replaceValues (N c l (Indexed (j, Just v)) r) = (N c (replaceValues l) v (replaceValues r))
-
 findAt :: Ord i => i -> RBMap i a -> Maybe a
 findAt i L = Nothing
 findAt i (N c l (Indexed (j, Nothing)) r) = Nothing
@@ -150,7 +144,6 @@ fromAssoc [] = L
 fromAssoc (Indexed(i,a):xs) = insertAt i a (fromAssoc xs)
 -- fromAssoc [Indexed(1,1), Indexed(2,2), Indexed(3,3), Indexed(4,4)]
 -- -> N B (N B (N B (N R L (Indexed (1,Just 1)) L) (Indexed (2,Just 2)) L) (Indexed (3,Just 3)) L) (Indexed (4,Just 4)) L
-
 
 test = N R L 27 L
 test2 = N B (N R L 12 L) 27 (N R L 29 L)
