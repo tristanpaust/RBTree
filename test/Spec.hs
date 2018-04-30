@@ -25,7 +25,7 @@ instance (Arbitrary a, Arbitrary i, Ord a, Ord i) => Arbitrary (RBMap i a) where
     return (fromAssoc ([Indexed(i,a)]))
 
 -- *** Uncomment this and remove the above in order to test regular trees without indexing *** --
-{-- 
+ {--
 instance (Arbitrary a, Ord a) => Arbitrary (RBTree a) where
   arbitrary = do
     a <- arbitrary
@@ -57,13 +57,13 @@ noRedChain (N _ l x r) = (noRedChain l) && (noRedChain r)
 getAllColors L = [[]]
 getAllColors (N c L y L) = [[colorValue c]]
 getAllColors (N c l y L) = do
-  left <- [l]
-  allLeft <- getAllColors left
-  return ((colorValue c):allLeft)
+    left <- [l]
+    allLeft <- getAllColors left
+    return ((colorValue c):allLeft)
 getAllColors (N c L y r) = do 
-  right <- [r]
-  allRight <- getAllColors right
-  return ((colorValue c):(allRight))
+    right <- [r]
+    allRight <- getAllColors right
+    return ((colorValue c):(allRight))
 getAllColors (N c l y r) = do
     trees   <- [l,r]
     allPaths <- getAllColors trees

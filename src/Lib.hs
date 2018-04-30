@@ -38,14 +38,14 @@ balance a = a
 ins :: Ord a => a -> RBTree a -> RBTree a
 ins x L = (N R L x L)
 ins x (N B l y r) = case compare x y of
-  LT -> balance (N B (ins x l) y r)
-  GT -> balance (N B l y (ins x r))
-  EQ -> (N B l x r)
+    LT -> balance (N B (ins x l) y r)
+    GT -> balance (N B l y (ins x r))
+    EQ -> (N B l x r)
 
 ins x (N R l y r) = case compare x y of
-  LT -> (N R (ins x l) y r)
-  GT -> (N R l y (ins x r))
-  EQ -> (N R l x r)
+    LT -> (N R (ins x l) y r)
+    GT -> (N R l y (ins x r))
+    EQ -> (N R l x r)
 
 insert :: Ord a => a -> RBTree a -> RBTree a
 insert x L = (N B L x L)
@@ -91,7 +91,6 @@ paths2 L = [[]]
 paths2 (N c L x L) = [[(c,x)]]
 paths2 (N c l x r) = paths2 l <|> paths2 r
 
-
 data Indexed i a = Indexed (i,a)
   deriving Show
 
@@ -110,19 +109,12 @@ deleteAt i (N c l (Indexed (j, Just v)) r)
   | i == j = (N c l (Indexed (j,Nothing)) r)
   | i <  j = (N c (deleteAt i l) (Indexed (j, Just v)) r) 
   | i >  j = (N c l (Indexed (j, Just v)) (deleteAt i r))
-{--
-convertItoA :: RBMap i a -> Int
-convertItoA (N c L (Indexed (j, Just v)) L) = j
---}
+
 replaceValues :: RBMap i a -> RBTree a
 replaceValues (N c L (Indexed (j, Just v)) L) = (N c L v L)
 replaceValues (N c L (Indexed (j, Just v)) r) = (N c L v (replaceValues r))
 replaceValues (N c l (Indexed (j, Just v)) L) = (N c (replaceValues l) v L)
 replaceValues (N c l (Indexed (j, Just v)) r) = (N c (replaceValues l) v (replaceValues r))
-
-{--
-testfind i (N c l (Indexed (j, Just v)) r) = find i (replaceValues (N c l (Indexed (j, Just v)) r))
---}
 
 findAt :: Ord i => i -> RBMap i a -> Maybe a
 findAt i L = Nothing
@@ -169,38 +161,6 @@ maptest = (N R L (Indexed (2, Just 12)) L)
 maptest2 = (N R L (Indexed (1,Nothing)) L)
 maptest3 = (N R (N B L (Indexed (1, Just 6)) L) (Indexed (2, Just 8)) (N B L (Indexed (3, Just 12)) L))
 maptest4 = N R (N R L (Indexed (1, Nothing)) L) (Indexed (2, Just 27)) (N R (N R (N B L (Indexed (3, Just 37)) L) (Indexed (4, Just 28)) L) (Indexed (5, Just 29)) (N R L (Indexed (6, Just 32)) L))
-
-{--
-getAllColors L = [[]]
-getAllColors (N c L y L) = [[colorValue c]]
-getAllColors (N c l y L) = do
-  left <- [l]
-  allLeft <- getAllColors left
-  return ((colorValue c):allLeft)
-getAllColors (N c L y r) = do 
-  right <- [r]
-  allRight <- getAllColors right
-  return ((colorValue c):(allRight))
-getAllColors (N c l y r) = do
-    trees   <- [l,r]
-    allPaths <- getAllColors trees
-    return ((colorValue c):(allPaths))
-
-checkPathValues [] = True
-checkPathValues xs = and $ map (== head xs) (tail xs)
-
--- Remove the root from the lists of paths as it always is just [1]
-filterRoot xs = filter (\x -> length(x) >= 2) xs
-
- -- Check whether all paths have the same sum, that is, all black nodes have a value of 1 and red ones have a value of 0
-samePathValues :: RBTree Int -> Bool
-samePathValues L = True
-samePathValues t = checkPathValues (map sum ((getAllColors t)))
-
-
-
---N B (N B (N B L (-12) L) (-11) (N R L (-8) L)) 3 (N B L 9 (N R L 12 L))
---}
 
 {--
 
@@ -259,10 +219,10 @@ L 2
  /\ 
 L L
 --}
+
 -- Test cases for all four kinds of unbalanced trees
 unbalanced1 = (N B (N R (N R L 6 L) 8 L) 12 L)
 balance1 = balance unbalanced1
 unbalanced2 = (N B L 6 (N R (N R L 8 L) 12 L))
 unbalanced3 = (N B L 6 (N R L 8 (N R L 12 L)))
 unbalanced4 = (N B (N R L 6 (N R L 8 L)) 12 L)
-
