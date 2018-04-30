@@ -29,26 +29,27 @@ blackenRoot (N c t y u) =
         (N c t y u)
 
 balance :: RBTree a -> RBTree a
-balance (N B (N R (N R L v3 L) v2 L) v1 L) = (N R (N B L v3 L) v2 (N B L v1 L))
-balance (N B L v1 (N R (N R L v3 L) v2 L)) = (N R (N B L v1 L) v3 (N B L v2 L))
-balance (N B L v1 (N R L v2 (N R L v3 L))) = (N R (N B L v1 L) v2 (N B L v3 L))
-balance (N B (N R L v2 (N R L v3 L)) v1 L) = (N R (N B L v2 L) v3 (N B L v1 L))
+balance (N B (N R (N R lll llv llr) lv lr) v r) = N R (N B lll llv llr) lv (N B lr v r)
+balance (N B (N R ll lv (N R lrl lrv lrr)) v r) = N R (N B ll lv lrl) lrv (N B lrr v r)
+balance (N B l v (N R (N R rll rlv rlr) rv rr)) = N R (N B l v rll) rlv (N B rlr rv rr)
+balance (N B l v (N R rl rv (N R rrl rrv rrr))) = N R (N B l v rl) rv (N B rrl rrv rrr)
 balance a = a
 
 ins :: Ord a => a -> RBTree a -> RBTree a
-ins x L = (N B L x L)
-ins x (N c l y r)
-  | x == y = N c l x r
-  | x < y = case l of 
-    (N c2 L y2 L) -> if x < y2 then balance((N B (N R (N R L x L) y2 L) y r)) else balance((N c (N R L y2 (N R L x L)) y r))
-    otherwise -> N c (ins x l) y r -- No Leaves found, hence the tree is still bigger and we need to traverse further down
-  | x > y = case r of
-    (N c2 L y2 L) -> if x < y2 then balance(N c l y (N R (N R L x L) y2 L)) else balance(N c l y (N R L y2 (N R L x L)))
-    otherwise -> N c l y (ins x r)
+ins x L = (N R L x L)
+ins x (N B l y r) = case compare x y of
+  LT -> balance (N B (ins x l) y r)
+  GT -> balance (N B l y (ins x r))
+  EQ -> (N B l x r)
+
+ins x (N R l y r) = case compare x y of
+  LT -> (N R (ins x l) y r)
+  GT -> (N R l y (ins x r))
+  EQ -> (N R l x r)
 
 insert :: Ord a => a -> RBTree a -> RBTree a
 insert x L = (N B L x L)
-insert x (N c l y r) = blackenRoot (ins x (N c l y r))
+insert x (N c l y r) = blackenRoot ( (ins x (N c l y r)))
 
 fromList :: Ord a => [a] -> RBTree a
 fromList [] = L
@@ -264,3 +265,4 @@ balance1 = balance unbalanced1
 unbalanced2 = (N B L 6 (N R (N R L 8 L) 12 L))
 unbalanced3 = (N B L 6 (N R L 8 (N R L 12 L)))
 unbalanced4 = (N B (N R L 6 (N R L 8 L)) 12 L)
+

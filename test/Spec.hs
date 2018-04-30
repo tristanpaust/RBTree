@@ -81,8 +81,6 @@ samePathValues :: RBTree Int -> Bool
 samePathValues L = True
 samePathValues t = checkPathValues (map sum ((getAllColors t)))
 
-
-
 -- The same as the above, just with an extra insert
 inOrderInsert x = inOrder . insert x
 isBlackRootInsert x = isBlackRoot . insert x
